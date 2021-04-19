@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 from contextlib import contextmanager
-from typing import Any, Callable, Generator, TYPE_CHECKING
+from typing import Any, Callable, Generator
 
 import torch
 from torch.optim import LBFGS
@@ -21,10 +21,8 @@ from pytorch_lightning.plugins.precision.mixed import MixedPrecisionPlugin
 from pytorch_lightning.utilities import _NATIVE_AMP_AVAILABLE, AMPType
 from pytorch_lightning.utilities.exceptions import MisconfigurationException
 
-if TYPE_CHECKING:
-    from torch.optim import Optimizer
-
-    from pytorch_lightning.core import LightningModule
+from torch.optim import Optimizer
+import pytorch_lightning as pl
 
 
 class NativeMixedPrecisionPlugin(MixedPrecisionPlugin):
@@ -42,7 +40,7 @@ class NativeMixedPrecisionPlugin(MixedPrecisionPlugin):
 
     def backward(
         self,
-        model: 'LightningModule',
+        model: 'pl.LightningModule',
         closure_loss: torch.Tensor,
         optimizer: 'Optimizer',
         opt_idx: int,
@@ -72,7 +70,7 @@ class NativeMixedPrecisionPlugin(MixedPrecisionPlugin):
 
     def pre_optimizer_step(
         self,
-        pl_module: 'LightningModule',
+        pl_module: 'pl.LightningModule',
         optimizer: 'Optimizer',
         optimizer_idx: int,
         lambda_closure: Callable,

@@ -18,7 +18,7 @@ Early Stopping
 Monitor a metric and stop training when it stops improving.
 
 """
-from typing import Any, Dict, Mapping, TYPE_CHECKING
+from typing import Any, Callable, Dict, Mapping, TYPE_CHECKING
 
 import numpy as np
 import torch
@@ -27,9 +27,7 @@ from pytorch_lightning.callbacks.base import Callback
 from pytorch_lightning.utilities import rank_zero_warn
 from pytorch_lightning.utilities.exceptions import MisconfigurationException
 
-if TYPE_CHECKING:
-    from pytorch_lightning.core import LightningModule
-    from pytorch_lightning.trainer.trainer import Trainer
+import pytorch_lightning as pl
 
 
 class EarlyStopping(Callback):
@@ -125,7 +123,7 @@ class EarlyStopping(Callback):
     def monitor_op(self) -> Callable:
         return self.mode_dict[self.mode]
 
-    def on_save_checkpoint(self, trainer: 'Trainer', pl_module: 'LightningModule',
+    def on_save_checkpoint(self, trainer: 'pl.Trainer', pl_module: 'pl.LightningModule',
                            checkpoint: Dict[str, Any]) -> Dict[str, Any]:
         return {
             'wait_count': self.wait_count,
@@ -140,14 +138,14 @@ class EarlyStopping(Callback):
         self.best_score = callback_state['best_score']
         self.patience = callback_state['patience']
 
-    def on_validation_end(self, trainer: 'Trainer', pl_module: 'LightningModule') -> None:
+    def on_validation_end(self, trainer: 'pl.Trainer', pl_module: 'pl.LightningModule') -> None:
         from pytorch_lightning.trainer.states import TrainerState
         if trainer.state != TrainerState.FITTING or trainer.sanity_checking:
             return None
 
         self._run_early_stopping_check(trainer)
 
-    def _run_early_stopping_check(self, trainer: 'Trainer') -> None:
+    def _run_early_stopping_check(self, trainer: 'pl.Trainer') -> None:
         """
         Checks whether the early stopping condition is met
         and if so tells the trainer to stop the training.

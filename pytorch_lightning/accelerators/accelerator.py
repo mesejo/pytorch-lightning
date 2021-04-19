@@ -25,9 +25,7 @@ from pytorch_lightning.utilities import rank_zero_warn
 from pytorch_lightning.utilities.apply_func import move_data_to_device
 from pytorch_lightning.utilities.enums import AMPType, GradClipAlgorithmType
 
-if TYPE_CHECKING:
-    from pytorch_lightning.core import LightningModule
-    from pytorch_lightning.trainer.trainer import Trainer
+import pytorch_lightning as pl
 
 _STEP_OUTPUT_TYPE = Union[torch.Tensor, Dict[str, torch.Tensor], None]
 
@@ -66,7 +64,7 @@ class Accelerator(object):
         self.lr_schedulers: Sequence = []
         self.optimizer_frequencies: Sequence = []
 
-    def connect(self, model: 'LightningModule') -> None:
+    def connect(self, model: 'pl.LightningModule') -> None:
         """Transfers ownership of the model to this plugin"""
         self.training_type_plugin.connect(model)
 
@@ -78,7 +76,7 @@ class Accelerator(object):
         """
         self.training_type_plugin.setup_environment()
 
-    def setup(self, trainer: 'Trainer', model: 'LightningModule') -> None:
+    def setup(self, trainer: 'Trainer', model: 'pl.LightningModule') -> None:
         """
         Setup plugins for the trainer fit and creates optimizers.
 
@@ -125,7 +123,7 @@ class Accelerator(object):
         self.training_type_plugin.model = new_model
 
     @property
-    def lightning_module(self) -> 'LightningModule':
+    def lightning_module(self) -> 'pl.LightningModule':
         """Returns the pure LightningModule.
         To get the potentially wrapped model use :attr:`Accelerator.model`
 

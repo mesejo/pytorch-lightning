@@ -19,11 +19,9 @@ import torch
 from pytorch_lightning.plugins.base_plugin import Plugin
 from pytorch_lightning.utilities import GradClipAlgorithmType
 
-if TYPE_CHECKING:
-    from torch.nn import Module
-    from torch.optim import Optimizer
-
-    from pytorch_lightning.core import LightningModule
+from torch.nn import Module
+from torch.optim import Optimizer
+import pytorch_lightning as pl
 
 
 class PrecisionPlugin(Plugin):
@@ -61,7 +59,7 @@ class PrecisionPlugin(Plugin):
 
     def backward(
         self,
-        model: 'LightningModule',
+        model: 'pl.LightningModule',
         closure_loss: torch.Tensor,
         optimizer: 'Optimizer',
         opt_idx: int,
@@ -94,7 +92,7 @@ class PrecisionPlugin(Plugin):
 
     def pre_optimizer_step(
         self,
-        pl_module: 'LightningModule',
+        pl_module: 'pl.LightningModule',
         optimizer: 'Optimizer',
         optimizer_idx: int,
         lambda_closure: Callable,

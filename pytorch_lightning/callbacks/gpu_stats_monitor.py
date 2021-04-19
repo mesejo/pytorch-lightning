@@ -23,16 +23,14 @@ import os
 import shutil
 import subprocess
 import time
-from typing import Any, Dict, List, Optional, Tuple, TYPE_CHECKING
+from typing import Any, Dict, List, Optional, Tuple
 
 from pytorch_lightning.callbacks.base import Callback
 from pytorch_lightning.utilities import DeviceType, rank_zero_only
 from pytorch_lightning.utilities.exceptions import MisconfigurationException
 from pytorch_lightning.utilities.parsing import AttributeDict
 
-if TYPE_CHECKING:
-    from pytorch_lightning.core import LightningModule
-    from pytorch_lightning.trainer.trainer import Trainer
+import pytorch_lightning as pl
 
 
 class GPUStatsMonitor(Callback):
@@ -107,7 +105,7 @@ class GPUStatsMonitor(Callback):
         self._snap_intra_step_time: Optional[float] = None
         self._snap_inter_step_time: Optional[float] = None
 
-    def on_train_start(self, trainer: 'Trainer', pl_module: 'LightningModule') -> None:
+    def on_train_start(self, trainer: 'pl.Trainer', pl_module: 'pl.LightningModule') -> None:
         if not trainer.logger:
             raise MisconfigurationException('Cannot use GPUStatsMonitor callback with Trainer that has no logger.')
 
@@ -121,13 +119,13 @@ class GPUStatsMonitor(Callback):
             map(str, trainer.data_parallel_device_ids if trainer.data_parallel_device_ids is not None else [])
         )
 
-    def on_train_epoch_start(self, trainer: 'Trainer', pl_module: 'LightningModule') -> None:
+    def on_train_epoch_start(self, trainer: 'pl.Trainer', pl_module: 'pl.LightningModule') -> None:
         self._snap_intra_step_time = None
         self._snap_inter_step_time = None
 
     @rank_zero_only
     def on_train_batch_start(
-        self, trainer: 'Trainer', pl_module: 'LightningModule', batch: Any, batch_idx: int, dataloader_idx: int
+        self, trainer: 'pl.Trainer', pl_module: 'pl.LightningModule', batch: Any, batch_idx: int, dataloader_idx: int
     ) -> None:
         if self._log_stats.intra_step_time:
             self._snap_intra_step_time = time.time()
@@ -147,7 +145,7 @@ class GPUStatsMonitor(Callback):
 
     @rank_zero_only
     def on_train_batch_end(
-        self, trainer: 'Trainer', pl_module: 'LightningModule', outputs: Any, batch: Any, batch_idx: int,
+        self, trainer: 'pl.Trainer', pl_module: 'pl.LightningModule', outputs: Any, batch: Any, batch_idx: int,
         dataloader_idx: int
     ) -> None:
         if self._log_stats.inter_step_time:
@@ -224,7 +222,7 @@ class GPUStatsMonitor(Callback):
         return stat_keys
 
     @staticmethod
-    def _should_log(trainer: 'Trainer') -> bool:
+    def _should_log(trainer: 'pl.Trainer') -> bool:
         should_log = ((trainer.global_step + 1) % trainer.log_every_n_steps == 0 or trainer.should_stop)
 
         return should_log
