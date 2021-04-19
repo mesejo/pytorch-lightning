@@ -44,22 +44,22 @@ from pytorch_lightning.utilities.device_dtype_mixin import DeviceDtypeModuleMixi
 from pytorch_lightning.utilities.exceptions import MisconfigurationException
 from pytorch_lightning.utilities.parsing import AttributeDict, collect_init_args, get_init_args
 
-if TYPE_CHECKING:
-    from argparse import Namespace
+import pytorch_lightning as pl
 
-    from pytorch_lightning.callbacks import Callback
-    from pytorch_lightning.loggers.base import LightningLoggerBase
-    from pytorch_lightning.trainer.trainer import Trainer
-    from pytorch_lightning.utilities import _OMEGACONF_AVAILABLE
+from argparse import Namespace
 
-    if _OMEGACONF_AVAILABLE:
-        from omegaconf import OmegaConf
-    _HYPERPARAMS = Union[Namespace, Dict, 'OmegaConf']
+from pytorch_lightning.callbacks import Callback
+from pytorch_lightning.loggers.base import LightningLoggerBase
+from pytorch_lightning.utilities import _OMEGACONF_AVAILABLE
 
-    _BATCHTYPE = Union[Dict[str, Union[torch.Tensor, Any]], Sequence[Union[torch.Tensor, Any]], torch.Tensor, Any]
-    _LRSCHED = Union[Sequence[Any], Sequence[Dict[str, Union[Any, str, int]]]]
-    _OPTIM_LR_DICT = Dict[str, Union[Optimizer, _LRSCHED]]
-    _BACKWARD_ARGS = Union[None, bool, torch.Tensor, Sequence[torch.Tensor]]
+if _OMEGACONF_AVAILABLE:
+    from omegaconf import OmegaConf
+_HYPERPARAMS = Union[Namespace, Dict, 'OmegaConf']
+
+_BATCHTYPE = Union[Dict[str, Union[torch.Tensor, Any]], Sequence[Union[torch.Tensor, Any]], torch.Tensor, Any]
+_LRSCHED = Union[Sequence[Any], Sequence[Dict[str, Union[Any, str, int]]]]
+_OPTIM_LR_DICT = Dict[str, Union[Optimizer, _LRSCHED]]
+_BACKWARD_ARGS = Union[None, bool, torch.Tensor, Sequence[torch.Tensor]]
 
 log = logging.getLogger(__name__)
 
@@ -103,7 +103,7 @@ class LightningModule(
         self.loaded_optimizer_states_dict: Dict = {}
 
         #: Pointer to the trainer object
-        self.trainer: Optional['Trainer'] = None
+        self.trainer: Optional['pl.Trainer'] = None
 
         self._distrib_type = None
         self._device_type = None
